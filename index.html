@@ -1,3 +1,6 @@
+<!--currently loads data only from September and outputs each activity as a bar in a chart via d3.
+Next goals are to combine into by-week or by-month, and to separate out rides from runs. Then to do over more time.-->
+
 <!DOCTYPE html>
 <meta charset="utf-8">
 <style>
@@ -52,13 +55,13 @@
 
 //this is where we loop through the data
 	function getSeptRuns(septRuns){
-		debugger
 		var data = [];
 		for(var i=0; i<septRuns.length; i++){
 		//we want an if statement here to separate out by month
 			var activityDate = new Date(septRuns[i].start_date);
 			if(activityDate > startDate && activityDate < endDate){
-			data.push(septRuns[i].distance);	
+			//converting from meters to miles, rounding to 2 decimal places
+			data.push((septRuns[i].distance*0.0006213712).toFixed(2));	
 			}
 			console.log(septRuns[i].distance);
 		}
