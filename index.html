@@ -14,9 +14,41 @@
 </style>
 <head></head>
 <body>
+<!-- This is where we call the chart -->
 	<div class="chart"></div>
+	<div id = "myDiv"></div>
 	<script src="http://d3js.org/d3.v3.min.js"></script>
 	<script>
+//this is where we are defining dates
+	var startDate = new Date(2017,09,01);
+	var endDate = new Date(2017,09,30);
+	console.log(startDate.getTime());
+	console.log(endDate.getTime());
+
+//this is where we call the data
+	function loadXMLDoc() {
+	    var xmlhttp = new XMLHttpRequest();
+
+	    xmlhttp.onreadystatechange = function() {
+	        if (xmlhttp.readyState == XMLHttpRequest.DONE ) {
+	           if (xmlhttp.status == 200) {
+	               document.getElementById("myDiv").innerHTML = xmlhttp.responseText;
+	           }
+	           else if (xmlhttp.status == 400) {
+	              alert('yo dog there was a problem');
+	           }
+	           else {
+	               alert('something else other than 200 was returned');
+	           }
+	        }
+	    };
+
+	    xmlhttp.open("GET", "https://www.strava.com/api/v3/athlete/activities?access_token=ACCESSTOKEN&per_page=100", true);
+	    xmlhttp.send();
+	}
+	loadXMLDoc();
+
+//this is the chart
 	var data = [4, 8, 15, 16, 23, 42];
 
 	var x = d3.scale.linear()
