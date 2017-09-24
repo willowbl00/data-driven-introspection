@@ -20,11 +20,10 @@
 	<script src="http://d3js.org/d3.v3.min.js"></script>
 	<script>
 //this is where we are defining dates
-	var startDate = new Date(2017,09,01);
-	var endDate = new Date(2017,09,30);
+	var startDate = new Date('September 1, 2017');
+	var endDate = new Date('September 30, 2017');
 	console.log(startDate.getTime());
 	console.log(endDate.getTime());
-	var data = [];
 
 //this is where we call the data
 	function loadXMLDoc() {
@@ -53,12 +52,18 @@
 
 //this is where we loop through the data
 	function getSeptRuns(septRuns){
+		debugger
+		var data = [];
 		for(var i=0; i<septRuns.length; i++){
+		//we want an if statement here to separate out by month
+			var activityDate = new Date(septRuns[i].start_date);
+			if(activityDate > startDate && activityDate < endDate){
+			data.push(septRuns[i].distance);	
+			}
 			console.log(septRuns[i].distance);
-			data.push(septRuns[i].distance);
 		}
+		console.log(data)
 		//this is the chart
-//	var data = [4, 8, 15, 16, 23, 42];
 
 	var x = d3.scale.linear()
    	 .domain([0, d3.max(data)])
