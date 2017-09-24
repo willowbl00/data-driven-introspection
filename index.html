@@ -24,6 +24,7 @@
 	var endDate = new Date(2017,09,30);
 	console.log(startDate.getTime());
 	console.log(endDate.getTime());
+	var data = [];
 
 //this is where we call the data
 	function loadXMLDoc() {
@@ -32,7 +33,9 @@
 	    xmlhttp.onreadystatechange = function() {
 	        if (xmlhttp.readyState == XMLHttpRequest.DONE ) {
 	           if (xmlhttp.status == 200) {
-	               document.getElementById("myDiv").innerHTML = xmlhttp.responseText;
+	               // document.getElementById("myDiv").innerHTML = xmlhttp.responseText;
+	               septRuns = JSON.parse(xmlhttp.responseText);
+	               getSeptRuns(septRuns);
 	           }
 	           else if (xmlhttp.status == 400) {
 	              alert('yo dog there was a problem');
@@ -42,14 +45,20 @@
 	           }
 	        }
 	    };
-
+// remember to remove the below when committing and/or switch to oAuth
 	    xmlhttp.open("GET", "https://www.strava.com/api/v3/athlete/activities?access_token=ACCESSTOKEN&per_page=100", true);
 	    xmlhttp.send();
 	}
 	loadXMLDoc();
 
-//this is the chart
-	var data = [4, 8, 15, 16, 23, 42];
+//this is where we loop through the data
+	function getSeptRuns(septRuns){
+		for(var i=0; i<septRuns.length; i++){
+			console.log(septRuns[i].distance);
+			data.push(septRuns[i].distance);
+		}
+		//this is the chart
+//	var data = [4, 8, 15, 16, 23, 42];
 
 	var x = d3.scale.linear()
    	 .domain([0, d3.max(data)])
@@ -61,6 +70,8 @@
 	  .enter().append("div")
 	    .style("width", function(d) { return x(d) + "px"; })
 	    .text(function(d) { return d; });
+	}
+
 	</script>
 </body>
 
