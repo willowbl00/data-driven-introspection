@@ -5,20 +5,24 @@ Next goals are to combine into by-week or by-month, and to separate out rides fr
 <meta charset="utf-8">
 <style>
 
-.chart div {
+.chart text {
+  fill: white;
   font: 10px sans-serif;
-  background-color: steelblue;
-  text-align: right;
-  padding: 3px;
-  margin: 1px;
-  color: white;
+  text-anchor: end;
+}
+
+.run {
+	fill: red;
+}
+.ride {
+	fill: blue;
 }
 
 </style>
 <head></head>
 <body>
 <!-- This is where we call the chart -->
-	<div class="chart"></div>
+	<svg class="chart"></svg>
 	<div id = "myDiv"></div>
 	<script src="http://d3js.org/d3.v3.min.js"></script>
 	<script>
@@ -43,43 +47,80 @@ Next goals are to combine into by-week or by-month, and to separate out rides fr
 	              alert('yo dog there was a problem');
 	           }
 	           else {
-	               alert('something else other than 200 was returned');
+	               alert('something else other than 200 was returned what does that even mean');
 	           }
 	        }
 	    };
 // remember to remove the below when committing and/or switch to oAuth
-	    xmlhttp.open("GET", "https://www.strava.com/api/v3/athlete/activities?access_token=ACCESSTOKEN&per_page=100", true);
+	    xmlhttp.open("GET", "https://www.strava.com/api/v3/athlete/activities?access_token=ACCESSTOKEN", true);
 	    xmlhttp.send();
 	}
 	loadXMLDoc();
 
 //this is where we loop through the data
 	function getSeptRuns(septRuns){
-		var data = [];
+		var totals = {"runTotal":0,"rideTotal":0};
+		var runTotal = 0;
+		var rideTotal = 0;
 		for(var i=0; i<septRuns.length; i++){
-		//we want an if statement here to separate out by month
+		//we want an if statement here to separate for just September, as defined
 			var activityDate = new Date(septRuns[i].start_date);
 			if(activityDate > startDate && activityDate < endDate){
-			//converting from meters to miles, rounding to 2 decimal places
-			data.push((septRuns[i].distance*0.0006213712).toFixed(2));	
+				// data.push((septRuns[i].distance*0.0006213712).toFixed(2));	
+				//converting from meters to miles, rounding to 2 decimal places
+				var distance = parseFloat((septRuns[i].distance*0.0006213712).toFixed(2));
+				console.log(distance)
+				console.log(typeof(distance))
+				if(septRuns[i].type === "Run"){
+					totals.runTotal+=distance;
+					runTotal+=distance
+				}
+				if(septRuns[i].type === "Ride"){
+					totals.rideTotal+=distance;
+					rideTotal+=distance
+				}
 			}
-			console.log(septRuns[i].distance);
 		}
-		console.log(data)
 		//this is the chart
+		var data = [{"runTotal":runTotal},{"rideTotal":rideTotal}]
+		var width = 420,
+		barHeight = 20;
 
-	var x = d3.scale.linear()
-   	 .domain([0, d3.max(data)])
-   	 .range([0, 420]);
+		var x = d3.scale.linear()
+	   	 .domain([0, 100])
+	   	 .range([0, 400]);
 
-	d3.select(".chart")
-	  .selectAll("div")
-	    .data(data)
-	  .enter().append("div")
-	    .style("width", function(d) { return x(d) + "px"; })
-	    .text(function(d) { return d; });
-	}
+		var chart = d3.select(".chart")
+		    .attr("width", width)
+		    .attr("height", barHeight * data.length);
+
+		var bar = chart.selectAll("g")
+		    .data(data)
+		  .enter().append("g")
+		    .attr("transform", function(d, i) { return "translate(0," + i * barHeight + ")"; });
+		bar.append("rect")
+			.attr("class", "run")
+		    .attr("width", function(d){return x(d.runTotal);
+		    })
+		    .attr("height", barHeight - 1);
+
+		bar.append("rect")
+			.attr("class", "ride")
+		    .attr("width", function(d){return x(d.rideTotal);
+		    })
+		    .attr("height", barHeight - 1);
+
+		bar.append("text")
+		    .attr("x", function(d) {return x(d.runTotal) - 3; })
+		    .attr("y", barHeight / 2)
+		    .attr("dy", ".35em")
+		    .text(function(d) { return d.runTotal; });
+		bar.append("text")
+		    .attr("x", function(d) {return x(d.rideTotal) - 3; })
+		    .attr("y", barHeight / 2)
+		    .attr("dy", ".35em")
+		    .text(function(d) { return d.rideTotal; });
+		}
 
 	</script>
 </body>
-
