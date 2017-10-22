@@ -31,6 +31,14 @@
 	console.log(startDate.getTime());
 	console.log(endDate.getTime());
 
+//this is where we make the access token happen through the URL locally
+var getQueryString = function ( field, url ) {
+    var href = url ? url : window.location.href;
+    var reg = new RegExp( '[?&]' + field + '=([^&#]*)', 'i' );
+    var string = reg.exec(href);
+    return string ? string[1] : null;
+};
+
 //this is where we call the data
 	function loadXMLDoc() {
 	    var xmlhttp = new XMLHttpRequest();
@@ -50,8 +58,9 @@
 	           }
 	        }
 	    };
-// remember to remove the below when committing and/or switch to oAuth
-	    xmlhttp.open("GET", "https://www.strava.com/api/v3/athlete/activities?access_token=ACCESSTOKEN", true);
+	    var access_token = getQueryString("access_token");
+	    var URL = "https://www.strava.com/api/v3/athlete/activities?access_token="+access_token+"&per_page=100";
+	    xmlhttp.open("GET", URL, true);
 	    xmlhttp.send();
 	}
 	loadXMLDoc();
