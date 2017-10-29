@@ -29,8 +29,8 @@
 //this is where we are defining dates
 	var startDate = new Date('January 1, 2017');
 	var endDate = new Date('December 31, 2017');
-	console.log(startDate.getTime());
-	console.log(endDate.getTime());
+	var epochStart = startDate.getTime()/1000;
+	var epochEnd = endDate.getTime()/1000;
 
 	function getMonthsObject(startDate, endDate){
 		var months = d3.timeMonth.range(d3.timeMonth.floor(startDate), d3.timeMonth.ceil(endDate));
@@ -58,6 +58,7 @@ var getQueryString = function ( field, url ) {
 	               // document.getElementById("myDiv").innerHTML = xmlhttp.responseText;
 	               runs = JSON.parse(xmlhttp.responseText);
 	               getRuns(runs);
+	               console.log(runs);
 	           }
 	           else if (xmlhttp.status == 400) {
 	              alert('yo dog there was a problem');
@@ -68,7 +69,7 @@ var getQueryString = function ( field, url ) {
 	        }
 	    };
 	    var access_token = getQueryString("access_token");
-	    var URL = "https://www.strava.com/api/v3/athlete/activities?access_token="+access_token+"&per_page=100";
+	    var URL = "https://www.strava.com/api/v3/athlete/activities?access_token="+access_token+"&after="+epochStart;
 	    xmlhttp.open("GET", URL, true);
 	    xmlhttp.send();
 	}
