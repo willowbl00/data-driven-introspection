@@ -87,7 +87,6 @@ var getQueryString = function ( field, url ) {
 			//we want an if statement here to separate by month, as defined in the timeMonth above
 				var activityDate = new Date(activities[i].start_date);
 				if(activityDate > monthsObject[j].month && activityDate < monthsObject[j+1].month){
-					console.log("we got this far")
 					//converting from meters to miles, rounding to 2 decimal places
 					var distance = parseFloat((activities[i].distance*0.0006213712).toFixed(2));
 					if(activities[i].type === "Run"){
@@ -119,7 +118,7 @@ var getQueryString = function ( field, url ) {
 		var bar = chart.selectAll("g")
 		    .data(data)
 		  .enter().append("g")
-		  //translate to leave room for the top and left margins. The *2 leaves padding for the alternating bars
+		  //translate to leave room for the top and left margins. spaceBetweenMonths leaves padding for the alternating bars
 		    .attr("transform", function(d, i) { return "translate(0," + i * barHeight + spaceBetweenMonths +")"; });
 		bar.append("rect")
 			.attr("class", "run")
