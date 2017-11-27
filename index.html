@@ -40,8 +40,18 @@
 		}
 		return monthsList
 	}
+	function getDateOfLastActivity(activities) {
+		var lastActivityDate = activities[activities.length - 1];
+		var dateInMilliseconds = new Date(lastActivityDate.start_date).getTime()/1000;
+		return dateInMilliseconds;
+	}
+	function getURL(lastActivityDate) {
+		var access_token = getQueryString("access_token");
+	    var URL = "https://www.strava.com/api/v3/athlete/activities?access_token="+access_token+"&after="+lastActivityDate;
+	    return URL
+	}
 //this is where we make the access token happen through the URL locally
-var getQueryString = function ( field, url ) {
+var getQueryString = function (field, url) {
     var href = url ? url : window.location.href;
     var reg = new RegExp( '[?&]' + field + '=([^&#]*)', 'i' );
     var string = reg.exec(href);
@@ -50,15 +60,30 @@ var getQueryString = function ( field, url ) {
 
 //this is where we call the data
 	function loadXMLDoc() {
+		var runs = [];
 	    var xmlhttp = new XMLHttpRequest();
 
 	    xmlhttp.onreadystatechange = function() {
 	        if (xmlhttp.readyState == XMLHttpRequest.DONE ) {
 	           if (xmlhttp.status == 200) {
 	               // document.getElementById("myDiv").innerHTML = xmlhttp.responseText;
-	               runs = JSON.parse(xmlhttp.responseText);
-	               getRuns(runs);
-	               console.log(runs);
+	               var firstMonthRuns = JSON.parse(xmlhttp.responseText);
+	               runs = runs.concat(runs, firstMonthRuns);
+	               var lastActivityDate = getDateOfLastActivity(firstMonthRuns);
+	               var newURL = getURL(lastActivityDate);
+	               var newXML = new XMLHttpRequest();
+	               newXML.onreadystatechange = function() {
+	               		if (newXML.readyState == XMLHttpRequest.DONE) {
+		               		if(newXML.status == 200) {
+								newRuns = JSON.parse(newXML.responseText);
+								runs = runs.concat(runs, newRuns);
+								debugger
+								getRuns(runs);
+		               		}
+	               		}
+	               }
+	               newXML.open("GET", newURL, true);
+	    			newXML.send();
 	           }
 	           else if (xmlhttp.status == 400) {
 	              alert('yo dog there was a problem');
@@ -70,18 +95,15 @@ var getQueryString = function ( field, url ) {
 	    };
 	    var access_token = getQueryString("access_token");
 	    var page_size = getQueryString("page_size")
-	    var URL = "https://www.strava.com/api/v3/athlete/activities?access_token="+access_token+"&after="+epochStart+"&per_page="+page_size;
+	    var URL = "https://www.strava.com/api/v3/athlete/activities?access_token="+access_token+"&after="+epochStart;
 	    xmlhttp.open("GET", URL, true);
 	    xmlhttp.send();
 	}
-	loadXMLDoc();
+	var rawRunData = loadXMLDoc();
 
 //this is where we loop through the data
 	function getRuns(activities){
 		var monthsObject = getMonthsObject(startDate, endDate);
-		//var totals = {"runTotal":0,"rideTotal":0};
-		//var runTotal = 0;
-		//var rideTotal = 0;
 		for(var i=0; i<activities.length; i++){
 			for(var j=0; j<monthsObject.length; j++){		
 			//we want an if statement here to separate by month, as defined in the timeMonth above
@@ -99,7 +121,6 @@ var getQueryString = function ( field, url ) {
 			}
 		}
 		//this is the chart
-		console.log(monthsObject)
 		var data = monthsObject
 		var width = 420;
 		var spaceBetweenMonths = 2;
